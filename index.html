@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Simple Chat</title>
+<style>
+body {
+  margin:0;
+  font-family:sans-serif;
+  background:#7ac7ff;
+}
+#messages {
+  padding:10px;
+}
+.bubble {
+  margin:5px;
+  padding:8px;
+  border-radius:10px;
+  max-width:70%;
+}
+.me { background:#9effa1; margin-left:auto; }
+.other { background:white; }
+</style>
+</head>
+<body>
+
+<h2 style="padding:10px;">Chat</h2>
+
+<div style="padding:10px;">
+<input id="name" placeholder="名前">
+<button onclick="setName()">入室</button>
+</div>
+
+<div id="messages"></div>
+
+<div style="position:fixed; bottom:0; width:100%; background:white; padding:5px;">
+<input id="msg" placeholder="メッセージ">
+<button onclick="send()">送信</button>
+<button onclick="clearChat()">削除</button>
+</div>
+
+<script>
+let myName = localStorage.getItem("name");
+
+function setName() {
+  myName = document.getElementById("name").value;
+  localStorage.setItem("name", myName);
+}
+
+// メッセージ保存
+function getMessages() {
+  return JSON.parse(localStorage.getItem("chat-data") || "[]");
+}
+function saveMessages(data) {
+  localStorage.setItem("chat-data", JSON.stringify(data));
+}
+
+// 表示
+function draw() {
+  const list = getMessages();
+  const box = document.getElementById("messages");
+  box.innerHTML = "";
+
+  list.forEach(m => {
+    const div = document.createElement("div");
+    div.className = "bubble " + (m.name === myName ? "me" : "other");
+    div.innerHTML = "<b>" + m.name + "</b><br>" + m.text;
+    box.appendChild(div);
+  });
+
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
+// 送信
+function send() {
+  const text = document.getElementById("msg").value;
+  if (!text) return;
+
+  const list = getMessages();
+  list.push({ name: myName, text });
+
+  saveMessages(list);
+  document.getElementById("msg").value = "";
+  draw();
+}
+
+// 削除
+function clearChat() {
+  localStorage.removeItem("chat-data");
+  draw();
+}
+
+draw();
+</script>
+
+</body>
+</html>
